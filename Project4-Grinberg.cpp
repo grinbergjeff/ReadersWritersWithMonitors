@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 		get_wall_clock(&seconds, &milliseconds); // Implement time_function.h
 	
 		//Open the file we are writing the output to.
-		//writethis.open(argv[1]);
+		writethis.open(argv[1]);
 
 		// Initialize the Pthreads
 		pthread_mutex_init(&out_lock, NULL);
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 		// By now, all of the functions will have ran and the output will have been written
 		// to the output file. We can close it.
 		
-		//writethis.close(argv[1]);
+		writethis.close();
 		
 		//WE ARE DONE HERE. Destroy everything! As Gary Oldman would SCREAM, 
 		//EEEEVVVEEERRRRRYYTTTHHHIING! [Go watch: Leon: The Professional]
@@ -181,8 +181,29 @@ int main(int argc, char *argv[])
 void * thread_reader(void *something)
 {
 	int ID = *((int *)something);
+	string writeOut;
 	
 	cout << "Starting to run Reader_ID " << " " << ID << "\n";
+	
+	int i;
+	for (i = 0; i < accessMax; i++)
+	{
+		// Activate the monitor!
+		read_monitor(1);
+		//Write this to the Output File
+		writeOut = ">>> DB value read =: %hu:%hu by reader number: %d\n", (unsigned short)seconds, milliseconds, ID);
+		writeToFile(writeOut);
+		//Write this to the Terminal Window
+		cout << writeOut;
+		
+		//Stop the monitor;
+		read_monitor(0);
+		
+		//Delay the Reader!
+		millisleep(R);
+	}
+	pthread_exit(0);
+	return 0; //This is a void.
 }
 void * thread_writer(void *something)
 {
@@ -196,7 +217,7 @@ void write_monitor(int operation)
 {
 
 }
-void writeToFile(string filename)
+void writeToFile(string writeme)
 {
-
+	writethis << writeme;
 }
