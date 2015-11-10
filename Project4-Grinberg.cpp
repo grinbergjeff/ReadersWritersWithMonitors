@@ -76,9 +76,13 @@ int main(int argc, char *argv[])
 	cout << "The program will run Mode B (2):" << "\n";
 	cout << "Writers have absolute priority over the readers." << "\n";
 	cout << "The program will use " << argv[2] << " readers." "\n"; 
+	r = atoi(argv[2]);
 	cout << "The program will use " << argv[3] << " writers." "\n"; 
+	w = atoi(argv[3]);
 	cout << "The readers will have a delay of " << argv[4] << " ms." "\n"; 
+	R = atoi(argv[4]);
 	cout << "The writers will have a delay of " << argv[5] << " ms." "\n"; 
+	W = atoi(argv[5]);
 	cout << "The program will write to: ";
 	cout << argv[1] <<  "\n";
 	
@@ -100,8 +104,8 @@ int main(int argc, char *argv[])
 	int delayedWriters = 0;
 	
 	//Make space for thread IDs
-	//read_id = new(*r); // Make space for amount of readers we will have.
-	//write_id =  new(*w); // Make space for amount of writers we will have.
+	read_id = new int[r]; // Make space for amount of readers we will have.
+	write_id =  new int[w]; // Make space for amount of writers we will have.
 	
 	//Create the threads! WRITERS HAVE PRIORITY!
 	
