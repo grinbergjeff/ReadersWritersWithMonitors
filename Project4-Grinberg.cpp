@@ -7,6 +7,26 @@ Code by: Jeffrey Grinberg
 /*
 Notes:
 	Mode: B -- Writers have absolute priority
+	
+	Order of Coding Operation:
+		-- Design Main
+			-- Allocate space for threads
+			-- Initialize Pthreads/Mutexes/Conditional Variables
+			-- Create Pthreads
+			-- Enforce that Writers are created first (added precaution).
+			-- Join Pthreads
+			-- Destroy Pthreads/Mutexes/Conditional Variables
+		-- Implement Functions
+			-- thread_reader
+				- For every thread we read, we will run the respective monitor and read the DB.
+			-- thread_writer
+				- For every thread we write, we will run the respective monitor which tells us if we can write from the DB.
+			-- read_monitor
+				- The monitor will determine if we are allowed to read from the DB. It intakes if it should begin or end.
+			-- write_monitor
+				- The monitor will determine if we are allowed to write from the DB. It intakes if it should begin or end.
+			-- writeToFile
+				- Write the values of access timestamps to the output file.
 */
 
 //Includes:
@@ -51,8 +71,8 @@ pthread_cond_t writer_condition;
 //Function Declarations
 void * thread_reader(void *something);
 void * thread_writer(void *something);
-void read_mon(int mode);
-void write_mon(int mode);
+void read_monitor(int operation);
+void write_monitor(int operation);
 void writeToFile(string filename);
 
 int main(int argc, char *argv[]) 
@@ -140,11 +160,11 @@ void * thread_writer(void *something)
 {
 
 }
-void read_mon(int mode)
+void read_monitor(int operation)
 {
 
 }
-void write_mon(int mode)
+void write_monitor(int operation)
 {
 
 }
