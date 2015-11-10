@@ -187,9 +187,10 @@ int main()
 	return 0;
 }
 
-// This function will attempt to access the database. When it does, it will activate the read_monitor
-// which performs the identification of active and delayed readers/writers and the implementation of 
-// the mutexes and locks. The thread_reader will record the current time and output it to the output file
+/* This function will attempt to access the database. When it does, it will activate the read_monitor
+ which performs the identification of active and delayed readers/writers and the implementation of 
+ the mutexes and locks. The thread_reader will record the current time and output it to the output file
+*/
 void * thread_reader(void *something)
 {
 	int ID = *((int *)something);
@@ -232,12 +233,13 @@ void * thread_writer(void *something)
 
 }
 
-//When the monitor is on (operation is true or '1'), the read monitor will send out a lock for mutex, giving it 
-// undivided and protected access to the critical section, preventing the other writers/readers from accessing.
-// However, if there are delayed or active writers, the monitor will tell the current reader to WAIT and increment
-// the amount of delayed readers we have.
-// If the monitor is off, we decrement the amount of readers we have since we are not using it. If we do have writers waiting,
-// we need to send the signal to the monitor to active the monitor for the writer and let the delayed writer become active.
+/*When the monitor is on (operation is true or '1'), the read monitor will send out a lock for mutex, giving it 
+ undivided and protected access to the critical section, preventing the other writers/readers from accessing.
+ However, if there are delayed or active writers, the monitor will tell the current reader to WAIT and increment
+ the amount of delayed readers we have.
+ If the monitor is off, we decrement the amount of readers we have since we are not using it. If we do have writers waiting,
+ we need to send the signal to the monitor to active the monitor for the writer and let the delayed writer become active.
+ */
 void read_monitor(int operation)
 {
 	if (operation) //If read_monitor is turned on
