@@ -223,7 +223,7 @@ void read_monitor(int operation)
 		while((delayedWriters + activeWriters) > 0) // If there are delayed or active writers
 		{
 			delayedReaders++; // Readers must WAIT.
-			pthread_cond_wait(&reader_condition, monitor_lock); // If there are no writers waiting, decrement
+			pthread_cond_wait(&reader_condition, &monitor_lock); // If there are no writers waiting, decrement
 			delayedReaders--;
 		}
 		//If there are no delayed or active writers, then we can increment the active Readers
