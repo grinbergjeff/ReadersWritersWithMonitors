@@ -165,13 +165,22 @@ int main(int argc, char *argv[])
 		
 		//WE ARE DONE HERE. Destroy everything! As Gary Oldman would SCREAM, 
 		//EEEEVVVEEERRRRRYYTTTHHHIING! [Go watch: Leon: The Professional]
+		
+		pthread_mutex_destroy(&out_lock);
+		pthread_mutex_destroy(&monitor_lock);
+		pthread_cond_destroy(&reader_condition);
+		pthread_cond_destroy(&writer_condition);
+		delete (write_threads);
+		delete (read_threads);
+		delete (write_id);
+		delete (read_id);
 	}
 	return 0;
 }
 
 void * thread_reader(void *something)
 {
-
+	
 }
 void * thread_writer(void *something)
 {
