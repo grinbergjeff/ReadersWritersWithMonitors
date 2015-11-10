@@ -58,9 +58,11 @@ void writeToFile(string filename);
 int main(int argc, char *argv[]) 
 {
 	// Make sure we have received the filename:
-	if (argc != 2)
+	if (argc != 6)
 	{
-		cout << "Please input your filename for the output with the extension." << "\n";
+		cout << "Please input your filename for the output with the extension and the amount/delays for the reader/writers." << "\n";
+		cout << "Your run command with arguments needs to look like:" << "\n";
+		cout << "./a.out 'filename' #ofReaders #ofWriters AmtReaderDelay AmtWriterDelay " << "\n";
 		cout << "Program will exit. Please run the program again!" << "\n";
 		exit(0);
 	}
@@ -73,15 +75,11 @@ int main(int argc, char *argv[])
 	// Request User to input information
 	cout << "The program will run Mode B (2):" << "\n";
 	cout << "Writers have absolute priority over the readers." << "\n";
-	cout << "How many readers will the program use?" << "\n"; // Ask user for input
-	cin >> r;
-	cout << "How many writer will the program use?" << "\n"; // Ask user for input
-	cin >> w;
-	cout << "What delay will the reader have?" << "\n"; // Ask user for input
-	cin >> R;
-	cout << "What delay will the writer have?" << "\n"; // Ask user for input
-	cin >> W;
-	cout << "The program will write to: "; // Ask user for input
+	cout << "The program will use " << argv[2] << " readers." "\n"; 
+	cout << "The program will use " << argv[3] << " writers." "\n"; 
+	cout << "The readers will have a delay of " << argv[4] << " ms." "\n"; 
+	cout << "The writers will have a delay of " << argv[5] << " ms." "\n"; 
+	cout << "The program will write to: ";
 	cout << argv[1] <<  "\n";
 	
 	get_wall_clock(&seconds, &milliseconds); // Implement time_function.h
@@ -102,8 +100,8 @@ int main(int argc, char *argv[])
 	int delayedWriters = 0;
 	
 	//Make space for thread IDs
-	//read_id = new(r); // Make space for amount of readers we will have.
-	//write_id =  new(w); // Make space for amount of writers we will have.
+	//read_id = new(*r); // Make space for amount of readers we will have.
+	//write_id =  new(*w); // Make space for amount of writers we will have.
 	
 	//Create the threads! WRITERS HAVE PRIORITY!
 	
