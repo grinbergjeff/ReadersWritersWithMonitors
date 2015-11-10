@@ -27,6 +27,8 @@ Notes:
 				- The monitor will determine if we are allowed to write from the DB. It intakes if it should begin or end.
 			-- writeToFile
 				- Write the values of access timestamps to the output file.
+				
+	*** Consider implementing a debugger!
 */
 
 //Includes:
@@ -146,8 +148,23 @@ int main(int argc, char *argv[])
 		}
 		
 		// JOIN THE THREADS!
+		// As a precaution, JOIN the threads in the order in which they were created.
+		for (i = 0; i < r; i++) // Join all Writer Threads
+		{
+			pthread_join(write_threads[i], NULL);
+		}
 		
-	
+		for (i = 0; i < r; i++) // Join all Reader Threads
+		{
+			pthread_join(read_threads[i], NULL);
+		}
+		// By now, all of the functions will have ran and the output will have been written
+		// to the output file. We can close it.
+		
+		//writethis.close(argv[1]);
+		
+		//WE ARE DONE HERE. Destroy everything! As Gary Oldman would SCREAM, 
+		//EEEEVVVEEERRRRRYYTTTHHHIING! [Go watch, Leon: The Professional]
 	}
 	return 0;
 }
