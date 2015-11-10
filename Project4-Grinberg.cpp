@@ -152,13 +152,13 @@ int main()
 		for (i = 0; i < r; i++)
 		{
 			read_id[i] = i+1;
-			pthread_create(&write_threads[i], NULL, thread_reader, &read_id[i]);
+			pthread_create(&read_threads[i], NULL, thread_reader, &read_id[i]);
 			cout << "Read Thread ID " << read_id[i] << " created" << " \n";
 		}
 		
 		// JOIN THE THREADS!
 		// As a precaution, JOIN the threads in the order in which they were created.
-		for (i = 0; i < r; i++) // Join all Writer Threads
+		for (i = 0; i < w; i++) // Join all Writer Threads
 		{
 			pthread_join(write_threads[i], NULL);
 		}
@@ -187,7 +187,7 @@ int main()
 	return 0;
 }
 
-/* This function will attempt to access the database. When it does, it will activate the read_monitor
+/* This function will attempt to access the database to read. When it does, it will activate the read_monitor
  which performs the identification of active and delayed readers/writers and the implementation of 
  the mutexes and locks. The thread_reader will record the current time and output it to the output file
 */
@@ -227,10 +227,44 @@ void * thread_reader(void *something)
 }
 
 
-
+/* This is very similar to the thread_reader function!
+	This function will attempt to access the database to write. When it does, it will activate the write_monitor
+ 	which performs the identification of active and delayed readers/writers and the implementation of 
+ 	the mutexes and locks. The thread_writer will record the current time and output it to the output file
+*/
 void * thread_writer(void *something)
 {
-
+	int ID = *((int *)something);
+	string writeOut;
+	
+	cout << "Starting to run Writer_ID " << " " << ID << "\n";
+	
+	int i;
+	for (i = 0; i < accessMax; i++)
+	{
+		// Activate the monitor!
+		write_monitor(1);
+		
+		//Time Math
+		get_wall_clock(&seconds, &milliseconds);
+		milliseconds = milliseconds;
+		seconds = seconds / 10000000;
+		
+		
+		//Write this to the Output File
+		writeOut = ">>> DB value read =: %hu:%hu by reader number: %d\n", (unsigned short)seconds, milliseconds, ID;
+		writeToFile(writeOut);
+		//Write this to the Terminal Window
+		cout << writeOut;
+		
+		//Stop the monitor;
+		write_monitor(0);
+		
+		//Delay the Writer!
+		millisleep(W); // Foreman recommends the possibility of a Loop for better results?
+	}
+	pthread_exit(0);
+	return 0; //This is a void.
 }
 
 /*When the monitor is on (operation is true or '1'), the read monitor will send out a lock for mutex, giving it 
@@ -258,7 +292,7 @@ void read_monitor(int operation)
 		}
 		//If there are no delayed or active writers, then we can increment the active Readers
 		activeReaders++;
-		pthread_mutex_lock(&monitor_lock);
+		pthread_mutex_unlock(&monitor_lock);
 	}
 	else // If read_monitor is turned off
 	{
@@ -272,10 +306,49 @@ void read_monitor(int operation)
 	}
 }
 
+/*When the monitor is on (operation is true or '1'), the write monitor will send out a lock for mutex, giving it 
+ undivided and protected access to the critical section, preventing the other writers/readers from accessing.
 
+ If the monitor is off, we decrement the amount of readers we have since we are not using it. If we do have writers waiting,
+ we need to send the signal to the monitor to active the monitor for the writer and let the delayed writer become active.
+ */
 void write_monitor(int operation)
 {
-	
+	if (operation) //If writer_monitor is turned on
+	{
+		//While Monitor is on, incorporate Mutual Exclusivity
+		pthread_mutex_lock(&monitor_lock);
+		
+		//WRITERS HAVE PRIORITY! IF A WRITER IS LOOKING TO RUN
+		// AND THERE ARE EITHER ACTIVE READERS or  WAITING WRITERS, IT ***MUST*** WAIT!!!
+		// It can go when the waiting Writers finish being active.
+		
+		while((delayedWriters + activeReaders) > 0) // If there are delayed or active writers
+		{
+			delayedWriters++; // Writers must WAIT.
+			pthread_cond_wait(&writer_condition, &monitor_lock); // If there are no writers waiting, decrement
+			delayedWriters--;
+		}
+		//If there are no delayed Writers or active readers, then we can increment the active Writers
+		activeWriters++;
+		pthread_mutex_unlock(&monitor_lock);
+	}
+	else // If read_monitor is turned off
+	{
+		pthread_mutex_lock(&monitor_lock); // Implement Mutex.
+		activeWriters--; // Not using Writer_monitor, therefore, activerWiters decrements.
+		if (delayedWriters > 0)
+		{
+			pthread_cond_signal(&writer_condition); /* If we have Writers waiting to work, SIGNAL the monitor to make it run!
+													  This if statement has top priority, therefore, giving priority
+													 to the writers! */
+		}
+		else if (delayedReaders > 0)
+		{
+			pthread_cond_broadcast,(&reader_condition); // If we have Readers waiting to enter the critical section, signal the variable!
+		}
+		pthread_mutex_unlock(&monitor_lock);
+	}
 }
 
 // Writes the status of the threads that access the DB to the output file
