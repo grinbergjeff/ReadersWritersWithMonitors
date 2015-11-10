@@ -72,43 +72,83 @@ int main(int argc, char *argv[])
 		pthread_t * read_threads;
 		pthread_t * write_threads;
 
-	// Request User to input information
-	cout << "The program will run Mode B (2):" << "\n";
-	cout << "Writers have absolute priority over the readers." << "\n";
-	cout << "The program will use " << argv[2] << " readers." "\n"; 
-	r = atoi(argv[2]);
-	cout << "The program will use " << argv[3] << " writers." "\n"; 
-	w = atoi(argv[3]);
-	cout << "The readers will have a delay of " << argv[4] << " ms." "\n"; 
-	R = atoi(argv[4]);
-	cout << "The writers will have a delay of " << argv[5] << " ms." "\n"; 
-	W = atoi(argv[5]);
-	cout << "The program will write to: ";
-	cout << argv[1] <<  "\n";
+		// Request User to input information
+		cout << "The program will run Mode B (2):" << "\n";
+		cout << "Writers have absolute priority over the readers." << "\n";
+		cout << "The program will use " << argv[2] << " readers." "\n"; 
+		r = atoi(argv[2]);
+		cout << "The program will use " << argv[3] << " writers." "\n"; 
+		w = atoi(argv[3]);
+		cout << "The readers will have a delay of " << argv[4] << " ms." "\n"; 
+		R = atoi(argv[4]);
+		cout << "The writers will have a delay of " << argv[5] << " ms." "\n"; 
+		W = atoi(argv[5]);
+		cout << "The program will write to: ";
+		cout << argv[1] <<  "\n";
 	
-	get_wall_clock(&seconds, &milliseconds); // Implement time_function.h
+		get_wall_clock(&seconds, &milliseconds); // Implement time_function.h
 	
-	//Open the file we are writing the output to.
-	//writethis.open(argv[1]);
+		//Open the file we are writing the output to.
+		//writethis.open(argv[1]);
 
-	// Initialize the Pthreads
-	pthread_mutex_init(&out_lock, NULL);
-	pthread_mutex_init(&monitor_lock, NULL);
-	pthread_cond_init(&reader_condition, NULL); // Conditional Variable for the Reader
-	pthread_cond_init(&writer_condition, NULL); // Conditional Variable for the Writer
+		// Initialize the Pthreads
+		pthread_mutex_init(&out_lock, NULL);
+		pthread_mutex_init(&monitor_lock, NULL);
+		pthread_cond_init(&reader_condition, NULL); // Conditional Variable for the Reader
+		pthread_cond_init(&writer_condition, NULL); // Conditional Variable for the Writer
 	
-	//Identify active and waiting readers/writers
-	int activeReaders = 0;
-	int activeWriters = 0;
-	int delayedReaders = 0;
-	int delayedWriters = 0;
+		//Identify active and waiting readers/writers
+		int activeReaders = 0;
+		int activeWriters = 0;
+		int delayedReaders = 0;
+		int delayedWriters = 0;
 	
-	//Make space for thread IDs
-	read_id = new int[r]; // Make space for amount of readers we will have.
-	write_id =  new int[w]; // Make space for amount of writers we will have.
+		//Make space for thread IDs
+		read_id = new int[r]; // Make space for amount of readers we will have.
+		write_id =  new int[w]; // Make space for amount of writers we will have.
 	
-	//Create the threads! WRITERS HAVE PRIORITY!
+		//Create the threads! WRITERS HAVE PRIORITY! Writers will be created first, and therefore run first.
+		write_threads = new pthread_t[w];
+		int i = 0;
+		for ( i = 0; i < w; i++)
+		{
+			write_id[i] = i+1;
+			pthread_create(&write_threads[i], NULL, thread_writer, &write_id[i]);
+			cout << "Write Thread ID " << write_id[i] << " created" << " \n";
+		}
+		//Create the reader_threads
+		read_threads = new pthread_t[r];
+		for (i = 0; i < r; i++)
+		{
+			read_id[i] = i+1;
+			pthread_create(&write_threads[i], NULL, thread_reader, &read_id[i]);
+			cout << "Read Thread ID " << read_id[i] << " created" << " \n";
+		}
+		
+		// JOIN THE THREADS!
+		
 	
 	}
 	return 0;
+}
+
+void * thread_reader(void *something)
+{
+
+}
+void * thread_writer(void *something)
+{
+
+}
+void read_mon(int mode)
+{
+
+}
+void write_mon(int mode)
+{
+
+}
+void writeToFile(string filename)
+{
+
 }
