@@ -180,7 +180,9 @@ int main(int argc, char *argv[])
 
 void * thread_reader(void *something)
 {
+	int ID = *((int *)something);
 	
+	cout << "Starting to run Reader_ID " << " " << ID << "\n";
 }
 void * thread_writer(void *something)
 {
