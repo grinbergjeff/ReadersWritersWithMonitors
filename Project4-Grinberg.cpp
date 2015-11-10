@@ -191,7 +191,7 @@ void * thread_reader(void *something)
 		// Activate the monitor!
 		read_monitor(1);
 		//Write this to the Output File
-		writeOut = ">>> DB value read =: %hu:%hu by reader number: %d\n", (unsigned short)seconds, milliseconds, ID);
+		writeOut = ">>> DB value read =: %hu:%hu by reader number: %d\n", (unsigned short)seconds, milliseconds, ID;
 		writeToFile(writeOut);
 		//Write this to the Terminal Window
 		cout << writeOut;
@@ -211,7 +211,34 @@ void * thread_writer(void *something)
 }
 void read_monitor(int operation)
 {
-
+	if (operation) //If read_monitor is turned on
+	{
+		//While Monitor is on, incorporate Mutual Exclusivity
+		pthread_mutex_lock(&monitor_lock);
+		
+		//Now, here is the important part! WRITERS HAVE PRIORITY! IF A READER IS LOOKING TO RUN
+		// AND THERE ARE EITHER ACTIVE OR WAITING WRITERS, IT ***MUST*** WAIT!!!
+		
+		while((delayedWriters + activeWriters) > 0) // If there are delayed or active writers
+		{
+			delayedReaders++; // Readers must WAIT.
+			pthread_cond_wait(&reader_condition, monitor_lock); // If there are no writers waiting, decrement
+			delayedReaders--;
+		}
+		//If there are no delayed or active writers, then we can increment the active Readers
+		activeReaders++;
+		pthread_mutex_lock(&monitor_lock);
+	}
+	else // If read_monitor is turned off
+	{
+		pthread_mutex_lock(&monitor_lock); // Implement Mutex.
+		activeReaders--; // Not using Read_monitor, therefore, activeReaders decrements.
+		if (delayedWriters > 0 && activeReaders == 0)
+		{
+			pthread_mutex_unlock(&monitor_lock); //If there are WRITERS WAITING, UNLOCK!
+		}
+		pthread_mutex_unlock(&monitor_lock);
+	}
 }
 void write_monitor(int operation)
 {
