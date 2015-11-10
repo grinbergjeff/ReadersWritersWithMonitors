@@ -77,6 +77,12 @@ void read_monitor(int operation);
 void write_monitor(int operation);
 void writeToFile(string filename);
 
+//Identify active and waiting readers/writers
+		int activeReaders = 0;
+		int activeWriters = 0;
+		int delayedReaders = 0;
+		int delayedWriters = 0;
+
 int main(int argc, char *argv[]) 
 {
 	// Make sure we have received the filename:
@@ -119,11 +125,6 @@ int main(int argc, char *argv[])
 		pthread_cond_init(&reader_condition, NULL); // Conditional Variable for the Reader
 		pthread_cond_init(&writer_condition, NULL); // Conditional Variable for the Writer
 	
-		//Identify active and waiting readers/writers
-		int activeReaders = 0;
-		int activeWriters = 0;
-		int delayedReaders = 0;
-		int delayedWriters = 0;
 	
 		//Make space for thread IDs
 		read_id = new int[r]; // Make space for amount of readers we will have.
