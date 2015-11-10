@@ -187,6 +187,9 @@ int main()
 	return 0;
 }
 
+// This function will attempt to access the database. When it does, it will activate the read_monitor
+// which performs the identification of active and delayed readers/writers and the implementation of 
+// the mutexes and locks. The thread_reader will record the current time and output it to the output file
 void * thread_reader(void *something)
 {
 	int ID = *((int *)something);
@@ -199,6 +202,13 @@ void * thread_reader(void *something)
 	{
 		// Activate the monitor!
 		read_monitor(1);
+		
+		//Time Math
+		get_wall_clock(&seconds, &milliseconds);
+		milliseconds = milliseconds;
+		seconds = seconds / 10000000;
+		
+		
 		//Write this to the Output File
 		writeOut = ">>> DB value read =: %hu:%hu by reader number: %d\n", (unsigned short)seconds, milliseconds, ID;
 		writeToFile(writeOut);
@@ -209,15 +219,25 @@ void * thread_reader(void *something)
 		read_monitor(0);
 		
 		//Delay the Reader!
-		millisleep(R);
+		millisleep(R); // Foreman recommends the possibility of a Loop for better results?
 	}
 	pthread_exit(0);
 	return 0; //This is a void.
 }
+
+
+
 void * thread_writer(void *something)
 {
 
 }
+
+//When the monitor is on (operation is true or '1'), the read monitor will send out a lock for mutex, giving it 
+// undivided and protected access to the critical section, preventing the other writers/readers from accessing.
+// However, if there are delayed or active writers, the monitor will tell the current reader to WAIT and increment
+// the amount of delayed readers we have.
+// If the monitor is off, we decrement the amount of readers we have since we are not using it. If we do have writers waiting,
+// we need to send the signal to the monitor to active the monitor for the writer and let the delayed writer become active.
 void read_monitor(int operation)
 {
 	if (operation) //If read_monitor is turned on
@@ -244,15 +264,19 @@ void read_monitor(int operation)
 		activeReaders--; // Not using Read_monitor, therefore, activeReaders decrements.
 		if (delayedWriters > 0 && activeReaders == 0)
 		{
-			pthread_mutex_unlock(&monitor_lock); //If there are WRITERS WAITING, UNLOCK!
+			pthread_cond_signal(&writer_condition); // If we have Writers waiting to work, SIGNAL the monitor to make it run!
 		}
 		pthread_mutex_unlock(&monitor_lock);
 	}
 }
+
+
 void write_monitor(int operation)
 {
 	
 }
+
+// Writes the status of the threads that access the DB to the output file
 void writeToFile(string writeme)
 {
 	pthread_mutex_lock(&out_lock);
