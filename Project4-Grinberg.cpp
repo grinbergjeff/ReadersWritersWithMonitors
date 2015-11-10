@@ -49,6 +49,7 @@ Notes:
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
 using namespace std;
 
 // Variable Declarations:
@@ -66,6 +67,7 @@ int R; // delay for reader
 int W; // delay for writer
 
 //Declaration of ostream (write to files)
+ifstream readthis;
 ofstream writethis;
 string file;
 
@@ -88,41 +90,42 @@ void writeToFile(string filename);
 		int delayedReaders = 0;
 		int delayedWriters = 0;
 
-int main(int argc, char *argv[]) 
+int main() 
 {
-	// Make sure we have received the filename:
-	if (argc != 6)
-	{
-		cout << "Please input your filename for the output with the extension and the amount/delays for the reader/writers." << "\n";
-		cout << "Your run command with arguments needs to look like:" << "\n";
-		cout << "./a.out 'filename' #ofReaders #ofWriters AmtReaderDelay AmtWriterDelay " << "\n";
-		cout << "Program will exit. Please run the program again!" << "\n";
-		exit(0);
-	}
-	else
-	{
 		//Declare the PThreads
 		pthread_t * read_threads;
 		pthread_t * write_threads;
 
-		// Request User to input information
-		cout << "The program will run Mode B (2):" << "\n";
-		cout << "Writers have absolute priority over the readers." << "\n";
-		cout << "The program will use " << argv[2] << " readers." "\n"; 
-		r = atoi(argv[2]);
-		cout << "The program will use " << argv[3] << " writers." "\n"; 
-		w = atoi(argv[3]);
-		cout << "The readers will have a delay of " << argv[4] << " ms." "\n"; 
-		R = atoi(argv[4]);
-		cout << "The writers will have a delay of " << argv[5] << " ms." "\n"; 
-		W = atoi(argv[5]);
-		cout << "The program will write to: ";
-		cout << argv[1] <<  "\n";
+		// Access input and output file
+		//File Path:
+		char *inFilePath = new char[50];
+		char *outFilePath = new char[50];
+		
+		strcpy(inFilePath, filebase);
+		strcat(inFilePath, "project4_in.txt");
+		strcpy(outFilePath, filebase);
+		strcat(outFilePath, "project4_out.txt");
+		
+		//Open the file we are writing the output to.
+		//Open the input file:
+		readthis.open(inFilePath);
+		
+		//Verify the file is not corrupt:
+		if ( readthis.good() == false)
+		{
+			cout << "input file couldn't open properly.";
+			exit(0); // Leave if file could not open properly.
+		}
+		
+		//Grab from the input file
+		readthis >> r >> w >> R >> W;
+		cout << "r = " << r << "\n" << "w = " << w << "\n" << "R = "<< R << "\n" << "W = " << W << "\n";
+		
+	
+		//Open the output file:
+		writethis.open(outFilePath);
 	
 		get_wall_clock(&seconds, &milliseconds); // Implement time_function.h
-	
-		//Open the file we are writing the output to.
-		writethis.open(argv[1]);
 
 		// Initialize the Pthreads
 		pthread_mutex_init(&out_lock, NULL);
@@ -167,10 +170,10 @@ int main(int argc, char *argv[])
 		// By now, all of the functions will have ran and the output will have been written
 		// to the output file. We can close it.
 		
-		writethis.close();
+		readthis.close();
 		
 		//WE ARE DONE HERE. Destroy everything! As Gary Oldman would SCREAM, 
-		//EEEEVVVEEERRRRRYYTTTHHHIING! [Go watch: Leon: The Professional]
+		//EVERYONEEEEEEE! [Go watch Leon: The Professional]
 		
 		pthread_mutex_destroy(&out_lock);
 		pthread_mutex_destroy(&monitor_lock);
@@ -180,7 +183,7 @@ int main(int argc, char *argv[])
 		delete (read_threads);
 		delete (write_id);
 		delete (read_id);
-	}
+		
 	return 0;
 }
 
@@ -255,4 +258,6 @@ void writeToFile(string writeme)
 	pthread_mutex_lock(&out_lock);
 	writethis << writeme;
 	pthread_mutex_unlock(&out_lock);
+	
+	writethis.close();
 }
