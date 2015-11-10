@@ -29,7 +29,12 @@ Notes:
 				- Write the values of access timestamps to the output file.
 				
 	*** Consider implementing a debugger!
-*/
+	
+	*** INPUT AND OUTPUT FILES NEED TO BE HARDCODED IN [IN A DIRECTORY]!
+	
+	*** Instead of sleep, run a loop, but compile without optimization?
+	
+	*/
 
 //Includes:
 /*Configure for WIN32*/
@@ -243,9 +248,11 @@ void read_monitor(int operation)
 }
 void write_monitor(int operation)
 {
-
+	
 }
 void writeToFile(string writeme)
 {
+	pthread_mutex_lock(&out_lock);
 	writethis << writeme;
+	pthread_mutex_unlock(&out_lock);
 }
