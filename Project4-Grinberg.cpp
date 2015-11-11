@@ -356,7 +356,7 @@ void write_monitor(int operation)
 		}
 		else if (delayedReaders > 0)
 		{
-			pthread_cond_broadcast,(&reader_condition); // If we have Readers waiting to enter the critical section, signal the variable!
+			pthread_cond_broadcast(&reader_condition); // If we have Readers waiting to enter the critical section, signal the variable!
 		}
 		pthread_mutex_unlock(&monitor_lock);
 	}
