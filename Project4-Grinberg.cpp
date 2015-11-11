@@ -194,6 +194,7 @@ int main()
 void * thread_reader(void *something)
 {
 	int ID = *((int *)something);
+	char writeMe[64];
 	string writeOut;
 	
 	cout << "Starting to run Reader_ID " << " " << ID << "\n";
@@ -206,15 +207,18 @@ void * thread_reader(void *something)
 		
 		//Time Math
 		get_wall_clock(&seconds, &milliseconds);
-		milliseconds = milliseconds;
 		seconds = seconds / 10000000;
+	
+		string printMe;
+		//printf(">>> DB value read =: %hu:%hu by reader number: %d (%d)\n", (unsigned short)seconds, milliseconds, ID, i);
+		sprintf(writeMe, ">>> DB value read =: %hu:%hu by reader number: %d\n", (unsigned short)seconds, milliseconds, ID);
 		
+		printMe = string(writeMe);
+		//Write this to the Terminal Window
+		cout << printMe;
 		
 		//Write this to the Output File
-		writeOut = ">>> DB value read =: %hu:%hu by reader number: %d\n", (unsigned short)seconds, milliseconds, ID;
-		writeToFile(writeOut);
-		//Write this to the Terminal Window
-		cout << writeOut;
+		writeToFile(printMe);
 		
 		//Stop the monitor;
 		read_monitor(0);
@@ -235,6 +239,7 @@ void * thread_reader(void *something)
 void * thread_writer(void *something)
 {
 	int ID = *((int *)something);
+	char writeMe[64];
 	string writeOut;
 	
 	cout << "Starting to run Writer_ID " << " " << ID << "\n";
@@ -247,15 +252,21 @@ void * thread_writer(void *something)
 		
 		//Time Math
 		get_wall_clock(&seconds, &milliseconds);
-		milliseconds = milliseconds;
 		seconds = seconds / 10000000;
 		
+		//Write this to the Output File
+		
+		string printMe;
+		
+		//printf("*** DB value set =: %hu:%hu by writer number: %d (%d)\n", (unsigned short)seconds, milliseconds, ID, i);
+		sprintf(writeMe, "*** DB value set =: %hu:%hu by writer number: %d\n", (unsigned short)seconds, milliseconds, ID);
+	
+		printMe = string(writeMe);
+		//Write this to the Terminal Window
+		cout << printMe;
 		
 		//Write this to the Output File
-		writeOut = ">>> DB value read =: %hu:%hu by reader number: %d\n", (unsigned short)seconds, milliseconds, ID;
-		writeToFile(writeOut);
-		//Write this to the Terminal Window
-		cout << writeOut;
+		writeToFile(printMe);
 		
 		//Stop the monitor;
 		write_monitor(0);
