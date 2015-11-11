@@ -171,7 +171,7 @@ int main()
 		// to the output file. We can close it.
 		
 		readthis.close();
-		
+		writethis.close();
 		//WE ARE DONE HERE. Destroy everything! As Gary Oldman would SCREAM, 
 		//EVERYONEEEEEEE! [Go watch Leon: The Professional]
 		
@@ -368,6 +368,5 @@ void writeToFile(string writeme)
 	pthread_mutex_lock(&out_lock);
 	writethis << writeme;
 	pthread_mutex_unlock(&out_lock);
-	
-	writethis.close();
+
 }
